@@ -3,26 +3,33 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TaskWise v2.14</title>
+  <title>TaskWise v3.1 Ultimate</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Chart.js for Analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
   <style>
     :root {
       /* LIGHT THEME */
       --primary-grad: linear-gradient(135deg, #b1121f 0%, #ff4d5e 100%);
       --bg-color: #f0f2f5;
       
-      --glass: rgba(255, 255, 255, 0.6);
-      --glass-border: rgba(255, 255, 255, 0.4);
+      --glass: rgba(255, 255, 255, 0.65);
+      --glass-strong: rgba(255, 255, 255, 0.85);
+      --glass-border: rgba(255, 255, 255, 0.5);
       --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
       
       --text: #1d1d1f;
       --text-secondary: #666;
-      --card-bg: rgba(255, 255, 255, 0.5);
-      --input-bg: rgba(255, 255, 255, 0.7);
+      --card-bg: rgba(255, 255, 255, 0.6);
+      --input-bg: rgba(255, 255, 255, 0.8);
       
       --success: #00a854;
       --warning: #faad14;
       --danger: #f5222d;
+      
+      --ai-color: #8e44ad;
+      --ai-grad: linear-gradient(135deg, #8e44ad 0%, #c39bd3 100%);
     }
 
     body.dark-mode {
@@ -31,13 +38,16 @@
       --bg-color: #0f0f12;
       
       --glass: rgba(20, 20, 20, 0.7);
+      --glass-strong: rgba(30, 30, 30, 0.9);
       --glass-border: rgba(255, 255, 255, 0.08);
-      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
       
       --text: #e0e0e0;
       --text-secondary: #a0a0a0;
-      --card-bg: rgba(255, 255, 255, 0.03);
+      --card-bg: rgba(255, 255, 255, 0.04);
       --input-bg: rgba(0, 0, 0, 0.3);
+      
+      --ai-grad: linear-gradient(135deg, #a569bd 0%, #d2b4de 100%);
     }
 
     * {
@@ -59,433 +69,225 @@
       position: relative;
     }
 
-    /* CURSOR GLOW EFFECT - Updated */
+    /* CURSOR GLOW EFFECT */
     #cursor-glow {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 300px;
-      height: 300px;
-      /* Light Mode: Red Glow, Reduced Intensity (0.4 * 0.7 = ~0.28) */
-      background: radial-gradient(circle, rgba(255, 77, 94, 0.28) 0%, transparent 70%);
-      border-radius: 50%;
-      pointer-events: none;
-      transform: translate(-50%, -50%);
-      z-index: 0; /* Very low z-index */
-      mix-blend-mode: normal;
-      filter: blur(60px);
-      transition: opacity 0.3s;
+      top: 0; left: 0; width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(255, 77, 94, 0.2) 0%, transparent 70%);
+      border-radius: 50%; pointer-events: none;
+      transform: translate(-50%, -50%); z-index: 0;
+      mix-blend-mode: normal; filter: blur(80px);
     }
-    
-    body.dark-mode #cursor-glow {
-        /* Dark Mode: Red Glow, Reduced Intensity (0.15 * 0.7 = ~0.1) */
-        background: radial-gradient(circle, rgba(255, 77, 94, 0.1) 0%, transparent 60%);
-        mix-blend-mode: screen;
-        filter: blur(40px);
-    }
+    body.dark-mode #cursor-glow { mix-blend-mode: screen; background: radial-gradient(circle, rgba(255, 77, 94, 0.1) 0%, transparent 60%); }
 
-    /* BACKGROUND ORBS ANIMATION */
-    .bg-orb {
-      position: fixed;
-      border-radius: 50%;
-      filter: blur(80px);
-      z-index: -1; /* Behind Glow */
-      opacity: 0.6;
-      animation: float 20s infinite ease-in-out;
-    }
-    
-    .orb-1 {
-      top: -10%;
-      left: -10%;
-      width: 50vw;
-      height: 50vw;
-      background: radial-gradient(circle, #ff9a9e 0%, transparent 70%);
-      animation-delay: 0s;
-    }
-    
-    .orb-2 {
-      bottom: -10%;
-      right: -10%;
-      width: 60vw;
-      height: 60vw;
-      background: radial-gradient(circle, #a18cd1 0%, transparent 70%);
-      animation-delay: -10s;
-    }
+    /* BACKGROUND ORBS */
+    .bg-orb { position: fixed; border-radius: 50%; filter: blur(90px); z-index: -1; opacity: 0.5; animation: float 25s infinite ease-in-out; }
+    .orb-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, #ff9a9e 0%, transparent 70%); }
+    .orb-2 { bottom: -10%; right: -10%; width: 60vw; height: 60vw; background: radial-gradient(circle, #a18cd1 0%, transparent 70%); animation-delay: -10s; }
+    body.dark-mode .orb-1 { background: radial-gradient(circle, #4a192c 0%, transparent 70%); opacity: 0.3; }
+    body.dark-mode .orb-2 { background: radial-gradient(circle, #1a1a3a 0%, transparent 70%); opacity: 0.3; }
+    @keyframes float { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(30px, 50px); } }
 
-    body.dark-mode .orb-1 { background: radial-gradient(circle, #4a192c 0%, transparent 70%); opacity: 0.4; }
-    body.dark-mode .orb-2 { background: radial-gradient(circle, #1a1a3a 0%, transparent 70%); opacity: 0.4; }
-
-    @keyframes float {
-      0%, 100% { transform: translate(0, 0); }
-      50% { transform: translate(30px, 50px); }
-    }
-
-    /* CUSTOM SCROLLBAR */
+    /* SCROLLBAR */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 10px; }
     body.dark-mode ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); }
 
-    /* CONFETTI CANVAS */
-    #confetti-canvas {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      pointer-events: none; z-index: 9999;
-    }
-
-    /* --- AUTH SCREEN --- */
+    /* AUTH SCREEN */
     .auth-screen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: transparent;
-      z-index: 2000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.5s ease;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: transparent; z-index: 2000;
+      display: flex; justify-content: center; align-items: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.5s ease;
     }
-
-    .auth-screen.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
+    .auth-screen.active { opacity: 1; pointer-events: auto; }
     .auth-card {
-      width: 100%;
-      max-width: 420px;
-      padding: 40px;
-      text-align: center;
-      background: var(--glass);
-      backdrop-filter: blur(30px);
-      -webkit-backdrop-filter: blur(30px);
-      border: 1px solid var(--glass-border);
-      box-shadow: var(--glass-shadow);
-      border-radius: 24px;
-      position: relative;
-      z-index: 2001; /* Ensure card is above everything */
+      width: 100%; max-width: 420px; padding: 40px; text-align: center;
+      background: var(--glass-strong); backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px); border: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow); border-radius: 24px; position: relative; z-index: 2001;
     }
+    .auth-toggle-wrapper { position: absolute; top: 20px; right: 20px; z-index: 2002; }
 
-    .auth-toggle-wrapper {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        z-index: 2002;
-    }
-
-    /* --- NAVBAR --- */
+    /* NAVBAR */
     .topnav {
-      position: sticky;
-      top: 20px;
-      height: 72px;
-      background: var(--glass);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid var(--glass-border);
-      box-shadow: var(--glass-shadow);
-      border-radius: 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 24px;
-      margin: 0 20px;
-      z-index: 1000; /* Above glow */
-      transition: opacity 0.5s;
+      position: sticky; top: 20px; height: 72px;
+      background: var(--glass-strong); backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px); border: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow); border-radius: 24px;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0 24px; margin: 0 20px; z-index: 1000; transition: opacity 0.5s;
     }
-
-    @media (min-width: 1140px) {
-      .topnav { margin: 0 auto; max-width: 1100px; }
-    }
-
+    @media (min-width: 1140px) { .topnav { margin: 0 auto; max-width: 1100px; } }
     .left, .center, .right { display: flex; align-items: center; gap: 14px; }
 
-    /* LOGO */
+    /* LOGO & ICONS */
     .logo-container { display: flex; align-items: center; gap: 12px; cursor: pointer; user-select: none; }
     .logo-icon { filter: drop-shadow(0 4px 6px rgba(177, 18, 31, 0.25)); transition: transform 0.3s; }
     .logo-container:hover .logo-icon { transform: scale(1.1) rotate(-5deg); }
     .brand { font-weight: 800; font-size: 1.4rem; letter-spacing: -0.5px; color: var(--text); }
     .brand::after { content: '.'; color: #ff4d5e; font-size: 1.6rem; margin-left: 1px; }
 
-    /* THEME TOGGLE */
-    .theme-toggle {
-      background: var(--input-bg);
-      border: 1px solid var(--glass-border);
-      color: var(--text);
-      width: 40px; height: 40px;
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.2rem;
-      transition: all 0.2s;
+    .theme-toggle, .logout-btn {
+      background: var(--input-bg); border: 1px solid var(--glass-border);
+      color: var(--text); width: 40px; height: 40px; border-radius: 50%;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; transition: all 0.2s;
     }
-    .theme-toggle:hover { transform: rotate(15deg) scale(1.1); background: var(--glass); }
-
-    /* LOGOUT BUTTON */
-    .logout-btn {
-      background: var(--input-bg);
-      border: 1px solid var(--glass-border);
-      color: var(--danger);
-      width: 40px; height: 40px;
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.2s;
-    }
-    .logout-btn svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2; fill: none; }
-    .logout-btn:hover { background: rgba(245, 34, 45, 0.1); transform: scale(1.1); }
+    .logout-btn { color: var(--danger); }
+    .theme-toggle:hover, .logout-btn:hover { transform: scale(1.1); background: var(--glass); }
 
     /* SEARCH */
     .search {
-      padding: 10px 20px;
-      border-radius: 999px;
-      border: 1px solid var(--glass-border);
-      outline: none;
-      font-size: 0.9rem;
-      background: var(--input-bg);
-      color: var(--text);
-      width: 200px;
-      transition: all 0.3s;
+      padding: 10px 20px; border-radius: 999px; border: 1px solid var(--glass-border);
+      outline: none; font-size: 0.9rem; background: var(--input-bg);
+      color: var(--text); width: 200px; transition: all 0.3s;
     }
-    .search:focus {
-      border-color: #ff4d5e;
-      width: 240px;
-      box-shadow: 0 0 0 3px rgba(255, 77, 94, 0.15);
-    }
+    .search:focus { border-color: #ff4d5e; width: 240px; box-shadow: 0 0 0 3px rgba(255, 77, 94, 0.15); }
 
     /* NAV BUTTONS */
     .center button {
-      background: transparent;
-      border: none;
-      padding: 10px 18px;
-      border-radius: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      color: var(--text-secondary);
-      position: relative;
-      overflow: hidden;
+      background: transparent; border: none; padding: 10px 18px; border-radius: 12px;
+      font-weight: 600; cursor: pointer; color: var(--text-secondary); position: relative; overflow: hidden;
     }
     .center button:hover { color: var(--text); background: rgba(125,125,125,0.1); }
-    .center button.active {
-      color: #ff4d5e;
-      background: rgba(255, 77, 94, 0.08);
-    }
+    .center button.active { color: #ff4d5e; background: rgba(255, 77, 94, 0.08); }
 
-    /* --- LAYOUT & GLASS --- */
-    .wrapper { 
-        padding: 32px; 
-        max-width: 1100px; 
-        margin: auto; 
-        position: relative; 
-        transition: opacity 0.5s;
-        z-index: 1; /* Place above glow */
-    }
-    .page { display: none; opacity: 0; transition: opacity 0.3s; }
-    .page.active { display: block; opacity: 1; animation: fadeIn 0.4s ease-out; }
-    
+    /* LAYOUT */
+    .wrapper { padding: 32px; max-width: 1100px; margin: auto; position: relative; z-index: 1; }
+    .page { display: none; opacity: 0; animation: fadeIn 0.4s ease-out forwards; }
+    .page.active { display: block; opacity: 1; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
     .glass {
-      background: var(--glass);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid var(--glass-border);
-      border-radius: 24px;
-      box-shadow: var(--glass-shadow);
+      background: var(--glass); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--glass-border); border-radius: 24px; box-shadow: var(--glass-shadow);
     }
 
-    /* --- HERO & DASHBOARD --- */
-    .hero { padding: 50px 60px; }
+    /* DASHBOARD */
+    .hero { padding: 40px; }
     .hero-flex { display: flex; justify-content: space-between; align-items: center; gap: 40px; }
-    .hero h1 { font-size: 3rem; margin: 0 0 16px 0; line-height: 1.1; letter-spacing: -1px; background: var(--primary-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .hero p { font-size: 1.1rem; line-height: 1.6; opacity: 0.9; margin-bottom: 24px; font-weight: 500; }
-    .hero-illustration { max-width: 300px; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1)); }
-    
-    .stats-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 50px; }
+    .hero-text h1 { font-size: 2.8rem; margin: 0 0 16px 0; line-height: 1.1; background: var(--primary-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .chart-container { width: 100%; height: 300px; margin-top: 30px; position: relative; }
+    .stats-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 40px; }
     .stat-card {
       background: var(--card-bg); padding: 24px; border-radius: 20px; text-align: center;
-      border: 1px solid var(--glass-border); position: relative; overflow: hidden;
+      border: 1px solid var(--glass-border); transition: transform 0.2s;
     }
-    .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-    .stat-number { font-size: 2.5rem; font-weight: 800; color: var(--text); display: block; margin-bottom: 5px; }
+    .stat-card:hover { transform: translateY(-5px); }
+    .stat-number { font-size: 2.5rem; font-weight: 800; color: var(--text); display: block; }
     .stat-label { font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1.5px; }
 
-    /* --- TASK INPUTS --- */
+    /* ANALYSIS CARD */
+    #aiAnalysisResult {
+      transition: all 0.3s;
+      animation: fadeIn 0.5s ease;
+    }
+
+    /* FORMS & INPUTS */
     .card { padding: 32px; margin-bottom: 32px; }
     .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     .full-width { grid-column: span 2; }
-
-    label { display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 8px; margin-top: 16px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
-    label:first-of-type { margin-top: 0; }
-
-    input, select {
-      width: 100%; padding: 14px; border-radius: 12px;
-      border: 1px solid var(--glass-border); background: var(--input-bg);
-      font-size: 0.95rem; color: var(--text); outline: none;
+    label { display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 8px; margin-top: 16px; color: var(--text-secondary); text-transform: uppercase; }
+    input, select, textarea {
+      width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--glass-border);
+      background: var(--input-bg); font-size: 0.95rem; color: var(--text); outline: none;
     }
-    input:focus, select:focus { border-color: #ff4d5e; box-shadow: 0 0 0 3px rgba(255, 77, 94, 0.1); background: var(--glass); }
-
-    .btn-group { display: flex; gap: 12px; margin-top: 24px; }
-
+    input:focus, select:focus, textarea:focus { border-color: #ff4d5e; box-shadow: 0 0 0 3px rgba(255, 77, 94, 0.1); background: var(--glass); }
+    
     button.primary-btn {
-      flex: 1; padding: 14px; border-radius: 12px; border: none;
-      background: var(--primary-grad); color: #fff; font-weight: 700; font-size: 1rem;
-      cursor: pointer; box-shadow: 0 4px 15px rgba(255, 77, 94, 0.3);
+      flex: 1; padding: 14px; border-radius: 12px; border: none; background: var(--primary-grad);
+      color: #fff; font-weight: 700; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 77, 94, 0.3);
     }
     button.primary-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255, 77, 94, 0.4); }
-    button.primary-btn:active { transform: scale(0.98); }
-    button.primary-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
-
     button.secondary-btn {
       padding: 12px 24px; border-radius: 12px; border: 1px solid var(--glass-border);
       background: rgba(255,255,255,0.05); color: var(--text); font-weight: 600; cursor: pointer;
     }
     button.secondary-btn:hover { background: rgba(0,0,0,0.05); }
+    button.ai-btn { background: var(--ai-grad); color: white; border: none; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    button.ai-btn:hover { box-shadow: 0 4px 15px rgba(142, 68, 173, 0.4); }
+    .loading-spin { animation: spin 1s linear infinite; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
 
-    /* --- KANBAN BOARD --- */
+    /* KANBAN */
     .kanban-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 24px; padding-bottom: 20px; }
-    
     .kanban-column {
-      background: rgba(255,255,255,0.05); 
-      border-radius: 20px; padding: 16px;
-      border: 1px solid var(--glass-border);
-      min-height: 400px; display: flex; flex-direction: column;
+      background: rgba(255,255,255,0.05); border-radius: 20px; padding: 16px;
+      border: 1px solid var(--glass-border); min-height: 400px;
     }
     body.dark-mode .kanban-column { background: rgba(0,0,0,0.2); }
-
-    .kanban-header {
-      font-weight: 800; text-transform: uppercase; color: var(--text-secondary);
-      font-size: 0.85rem; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;
-      letter-spacing: 1px; padding: 0 4px;
-    }
-    
-    .count-badge { background: var(--text-secondary); color: var(--bg-color); font-size: 0.75rem; padding: 2px 10px; border-radius: 99px; font-weight: 700; }
+    .kanban-header { font-weight: 800; text-transform: uppercase; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 20px; display: flex; justify-content: space-between; }
+    .count-badge { background: var(--text-secondary); color: var(--bg-color); font-size: 0.75rem; padding: 2px 10px; border-radius: 99px; }
 
     /* TASK CARD */
     .kanban-task {
-      background: var(--card-bg);
-      backdrop-filter: blur(10px);
-      padding: 18px; border-radius: 16px; margin-bottom: 16px;
-      border: 1px solid var(--glass-border);
-      cursor: grab;
-      position: relative;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-      transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+      background: var(--card-bg); backdrop-filter: blur(10px); padding: 18px; border-radius: 16px;
+      margin-bottom: 16px; border: 1px solid var(--glass-border); cursor: pointer; position: relative;
+      transition: all 0.2s;
     }
-    .kanban-task:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 12px 24px rgba(0,0,0,0.1); border-color: rgba(255, 77, 94, 0.3); z-index: 10; }
-    .kanban-task:active { cursor: grabbing; transform: scale(0.98); }
-
+    .kanban-task:hover { transform: translateY(-4px); border-color: #ff4d5e; box-shadow: 0 8px 20px rgba(0,0,0,0.1); z-index: 10; }
     .task-title { font-weight: 700; font-size: 1rem; margin-bottom: 8px; color: var(--text); line-height: 1.4; }
-    
     .task-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--glass-border); }
+    .mini-avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1px solid var(--glass-border); }
+    .priority-badge { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; }
+    .badge-high { background: rgba(245, 34, 45, 0.1); color: var(--danger); }
+    .badge-medium { background: rgba(250, 173, 20, 0.1); color: var(--warning); }
+    .badge-low { background: rgba(0, 168, 84, 0.1); color: var(--success); }
     
-    .priority-badge {
-      font-size: 0.65rem; font-weight: 800; text-transform: uppercase;
-      padding: 4px 10px; border-radius: 6px; letter-spacing: 0.5px;
-    }
-    .badge-high { background: rgba(245, 34, 45, 0.1); color: var(--danger); border: 1px solid rgba(245, 34, 45, 0.2); }
-    .badge-medium { background: rgba(250, 173, 20, 0.1); color: var(--warning); border: 1px solid rgba(250, 173, 20, 0.2); }
-    .badge-low { background: rgba(0, 168, 84, 0.1); color: var(--success); border: 1px solid rgba(0, 168, 84, 0.2); }
-
-    .task-assignee { font-size: 0.75rem; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; font-weight: 600; }
-    .mini-avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; background: #fff; border: 1px solid var(--glass-border); }
-
-    .deadline-indicator {
-      position: absolute; top: 18px; right: 18px;
-      width: 8px; height: 8px; border-radius: 50%;
-    }
+    .subtask-progress { height: 4px; background: rgba(0,0,0,0.1); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+    .subtask-bar { height: 100%; background: var(--success); width: 0%; transition: width 0.3s; }
+    .deadline-dot { position: absolute; top: 18px; right: 18px; width: 8px; height: 8px; border-radius: 50%; }
     .dot-overdue { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
-    .dot-today { background: var(--warning); box-shadow: 0 0 8px var(--warning); }
-    
-    .kanban-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.4; text-align: center; color: var(--text); min-height: 150px; }
-    .kanban-empty svg { width: 48px; height: 48px; margin-bottom: 10px; fill: var(--text); opacity: 0.5; }
 
-    /* --- MEMBERS --- */
+    /* MODAL (DETAIL VIEW) */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6); z-index: 3000; display: none;
+      justify-content: center; align-items: center; backdrop-filter: blur(8px);
+    }
+    .modal-overlay.active { display: flex; animation: fadeInModal 0.2s forwards; }
+    @keyframes fadeInModal { from { opacity: 0; } to { opacity: 1; } }
+    .modal-card { width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; background: var(--glass-strong); padding: 0; }
+    .modal-header { padding: 24px; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: flex-start; }
+    .modal-body { padding: 24px; }
+    .modal-footer { padding: 20px 24px; border-top: 1px solid var(--glass-border); background: rgba(0,0,0,0.02); display: flex; justify-content: flex-end; gap: 10px; }
+    
+    .detail-label { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 6px; }
+    .detail-value { font-size: 1rem; color: var(--text); margin-bottom: 20px; }
+    
+    /* SUBTASKS STYLES */
+    .subtask-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; padding: 8px; background: var(--card-bg); border-radius: 8px; border: 1px solid var(--glass-border); }
+    .subtask-item.completed span { text-decoration: line-through; opacity: 0.6; }
+    .checkbox-round { width: 20px; height: 20px; cursor: pointer; accent-color: var(--success); }
+    
+    /* ACTIVITY LOG */
+    .log-item { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 6px; padding-left: 10px; border-left: 2px solid var(--glass-border); }
+    .log-time { font-weight: 600; font-size: 0.7rem; opacity: 0.7; }
+
+    /* TEAM & MEMBERS */
     .members-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 24px; }
     .member-card { 
       padding: 24px; text-align: center; cursor: pointer; border: 1px solid var(--glass-border); background: var(--card-bg);
       border-radius: 20px; transition: all 0.3s; position: relative; overflow: hidden;
     }
-    .member-card:hover { transform: translateY(-5px); border-color: #ff4d5e; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-    
-    .member-avatar-container { position: relative; width: 80px; height: 80px; margin: 0 auto 16px; }
-    .member-avatar { width: 100%; height: 100%; border-radius: 50%; border: 4px solid rgba(255,255,255,0.2); box-shadow: 0 8px 20px rgba(0,0,0,0.15); object-fit: cover; background: white; }
-    .upload-overlay {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5); border-radius: 50%; display: flex;
-      align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s;
-      color: white; font-size: 1.5rem;
-    }
-    .member-avatar-container:hover .upload-overlay { opacity: 1; }
-    
-    .member-filter-active { background: linear-gradient(135deg, #b1121f, #ff4d5e); color: white !important; border: none; }
-    .member-filter-active * { color: white !important; }
-
-    /* --- TEAM PAGE --- */
-    .team-header { text-align: center; margin-bottom: 40px; padding: 40px 0; border-bottom: 1px solid var(--glass-border); }
-    .team-name-large { font-size: 3rem; font-weight: 800; background: var(--primary-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
-    .team-section { margin-bottom: 40px; }
-    .team-section h3 { border-bottom: 1px solid var(--glass-border); padding-bottom: 10px; margin-bottom: 20px; font-size: 1.1rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; }
-    
+    .member-card:hover { transform: translateY(-5px); border-color: #ff4d5e; }
     .team-list-item {
       display: flex; align-items: center; justify-content: space-between;
       padding: 12px 20px; background: var(--card-bg); border-radius: 12px; margin-bottom: 10px;
-      border: 1px solid var(--glass-border); transition: transform 0.2s;
+      border: 1px solid var(--glass-border);
     }
-    .team-list-item:hover { transform: translateX(5px); background: var(--glass); }
-    .t-user-info { display: flex; align-items: center; gap: 12px; }
-    .t-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
-    .t-role-badge { font-size: 0.75rem; padding: 4px 8px; background: rgba(0,0,0,0.1); border-radius: 6px; margin-left: 10px; }
-    .t-actions button { font-size: 0.8rem; padding: 6px 12px; }
-
-    /* MODAL */
-    .modal-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.6); z-index: 3000; display: none;
-      justify-content: center; align-items: center; backdrop-filter: blur(5px);
-    }
-    .modal-overlay.active { display: flex; }
-    .modal-card { width: 90%; max-width: 400px; z-index: 3001; }
-
-    /* --- TOASTS --- */
-    #toast-container { position: fixed; bottom: 30px; right: 30px; z-index: 2000; display: flex; flex-direction: column; gap: 12px; }
-    .toast {
-      background: var(--glass); backdrop-filter: blur(16px);
-      padding: 16px 24px; border-radius: 14px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-      border: 1px solid var(--glass-border); border-left: 5px solid #333;
-      color: var(--text); min-width: 300px; font-weight: 600; font-size: 0.95rem;
-      animation: toastIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-    .toast.success { border-left-color: var(--success); }
-    .toast.error { border-left-color: var(--danger); }
-    @keyframes toastIn { from { transform: translateX(100%) scale(0.9); opacity: 0; } to { transform: translateX(0) scale(1); opacity: 1; } }
 
     /* RESPONSIVE */
-    @media (max-width: 900px) {
-      .kanban-board { grid-template-columns: 1fr; }
-      .kanban-column { min-height: auto; }
-      .input-grid { grid-template-columns: 1fr; }
-      .full-width { grid-column: span 1; }
-    }
-    @media (max-width: 768px) {
-      .hero-flex { flex-direction: column-reverse; text-align: center; }
-      .stats-container { grid-template-columns: 1fr; }
-      .topnav { padding: 0 16px; margin: 0 12px; top: 10px; }
-      .center button span { display: none; }
-      .center { gap: 4px; }
-      .hero h1 { font-size: 2.2rem; }
-    }
+    @media (max-width: 900px) { .kanban-board { grid-template-columns: 1fr; } .input-grid { grid-template-columns: 1fr; } .full-width { grid-column: span 1; } }
+    @media (max-width: 768px) { .hero-flex { flex-direction: column-reverse; text-align: center; } .stats-container { grid-template-columns: 1fr; } .topnav { padding: 0 16px; top: 10px; } .center button span { display: none; } }
   </style>
 </head>
 <body class="">
 
 <!-- CURSOR GLOW -->
 <div id="cursor-glow"></div>
-
 <!-- BACKGROUND ORBS -->
 <div class="bg-orb orb-1"></div>
 <div class="bg-orb orb-2"></div>
@@ -493,9 +295,7 @@
 <!-- AUTH SCREEN -->
 <div id="authScreen" class="auth-screen">
   <div class="auth-toggle-wrapper">
-    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark Mode">
-      <span id="theme-icon-auth">🌙</span>
-    </button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark Mode"><span id="theme-icon-auth">🌙</span></button>
   </div>
   <div class="auth-card">
     <div class="logo-container" style="justify-content: center; margin-bottom: 24px;">
@@ -503,63 +303,24 @@
         <svg width="48" height="48" viewBox="0 0 34 34" fill="none">
           <rect width="34" height="34" rx="10" fill="url(#logo_grad_auth)"/>
           <path d="M9.5 17L14 21.5L24.5 11" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-          <defs>
-            <linearGradient id="logo_grad_auth" x1="0" y1="0" x2="34" y2="34" gradientUnits="userSpaceOnUse">
-              <stop stop-color="#b1121f"/>
-              <stop offset="1" stop-color="#ff4d5e"/>
-            </linearGradient>
-          </defs>
+          <defs><linearGradient id="logo_grad_auth" x1="0" y1="0" x2="34" y2="34" gradientUnits="userSpaceOnUse"><stop stop-color="#b1121f"/><stop offset="1" stop-color="#ff4d5e"/></linearGradient></defs>
         </svg>
       </div>
     </div>
-    <h1 style="margin: 0 0 10px 0; font-size: 2rem;">Welcome to TaskWise</h1>
-    <p style="opacity: 0.7; margin-bottom: 30px;">Let's get you set up. Who are you?</p>
-    
+    <h1 style="margin: 0 0 10px 0; font-size: 2rem;">TaskWise v3.1</h1>
+    <p style="opacity: 0.7; margin-bottom: 30px;">The Ultimate Project Manager</p>
     <div class="input-grid" style="grid-template-columns: 1fr; text-align: left;">
-      <div>
-        <label>Your Name</label>
-        <input id="authName" placeholder="e.g. Jatin">
-      </div>
-      <div>
-        <label>Your Role</label>
-        <select id="authRole" onchange="toggleTeamInput()">
-          <option value="Admin">Admin</option>
-          <option value="Member">Member</option>
-          <option value="Viewer">Viewer</option>
-        </select>
-      </div>
-      <div>
-        <label id="teamLabel">Create Team</label>
-        <input id="authTeam" placeholder="e.g. JC's Team">
-      </div>
+      <div><label>Your Name</label><input id="authName" placeholder="e.g. Jatin"></div>
+      <div><label>Your Role</label><select id="authRole" onchange="toggleTeamInput()"><option value="Admin">Admin</option><option value="Member">Member</option><option value="Viewer">Viewer</option></select></div>
+      <div><label id="teamLabel">Create Team</label><input id="authTeam" placeholder="e.g. Engineering"></div>
     </div>
-    
     <button class="primary-btn" onclick="completeAuth()" style="margin-top: 30px; width: 100%;">Get Started</button>
   </div>
 </div>
 
-<!-- EDIT MEMBER MODAL -->
-<div id="editMemberModal" class="modal-overlay">
-  <div class="glass modal-card">
-    <h3 style="margin-top:0;">Edit Member</h3>
-    <input id="editMemberName" placeholder="Name" style="margin-bottom:12px;">
-    <select id="editMemberRole" style="margin-bottom:20px;">
-      <option value="Admin">Admin</option>
-      <option value="Member">Member</option>
-      <option value="Viewer">Viewer</option>
-    </select>
-    <div style="display:flex; gap:10px;">
-      <button class="secondary-btn" onclick="closeModal()">Cancel</button>
-      <button class="primary-btn" onclick="saveMemberEdit()">Save Changes</button>
-    </div>
-  </div>
-</div>
-
-<!-- HIDDEN FILE INPUT FOR AVATAR UPLOAD -->
-<input type="file" id="avatarUpload" style="display:none" accept="image/*">
-
-<canvas id="confetti-canvas"></canvas>
-<div id="toast-container"></div>
+<!-- CANVAS FOR CONFETTI -->
+<canvas id="confetti-canvas" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:9999;"></canvas>
+<div id="toast-container" style="position:fixed; bottom:30px; right:30px; z-index:9999; display:flex; flex-direction:column; gap:12px;"></div>
 
 <!-- NAVBAR -->
 <div class="topnav" id="navbar">
@@ -569,799 +330,777 @@
         <svg width="36" height="36" viewBox="0 0 34 34" fill="none">
           <rect width="34" height="34" rx="10" fill="url(#logo_grad)"/>
           <path d="M9.5 17L14 21.5L24.5 11" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-          <defs>
-            <linearGradient id="logo_grad" x1="0" y1="0" x2="34" y2="34" gradientUnits="userSpaceOnUse">
-              <stop stop-color="#b1121f"/>
-              <stop offset="1" stop-color="#ff4d5e"/>
-            </linearGradient>
-          </defs>
+          <defs><linearGradient id="logo_grad" x1="0" y1="0" x2="34" y2="34" gradientUnits="userSpaceOnUse"><stop stop-color="#b1121f"/><stop offset="1" stop-color="#ff4d5e"/></linearGradient></defs>
         </svg>
       </div>
       <span class="brand">TaskWise</span>
     </div>
   </div>
-
   <div class="center">
-    <button class="active" onclick="showPage('home')">Home</button>
+    <button class="active" onclick="showPage('home')">Dashboard</button>
     <button onclick="showPage('tasks')">Tasks</button>
     <button onclick="showPage('team')">Team</button>
-    <button onclick="showPage('about')">About</button>
+    <button onclick="showPage('about')">Settings</button>
   </div>
-
   <div class="right">
     <div style="text-align: right; margin-right: 10px; line-height: 1.2;">
         <div id="navUserName" style="font-weight: 700; font-size: 0.9rem;">User</div>
         <div id="navUserTeam" style="font-size: 0.7rem; opacity: 0.7;">Team</div>
     </div>
-    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark Mode" style="margin-right:8px;">
-      <span id="theme-icon">🌙</span>
-    </button>
-    <button class="logout-btn" onclick="logout()" title="Logout">
-      <!-- Logout Door Icon -->
-      <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-    </button>
+    <button class="theme-toggle" onclick="toggleTheme()"><span id="theme-icon">🌙</span></button>
+    <button class="logout-btn" onclick="logout()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></button>
   </div>
 </div>
 
 <div class="wrapper" id="mainContent">
 
-  <!-- HOME -->
+  <!-- 1. HOME DASHBOARD -->
   <section id="home" class="page active">
     <div class="glass hero">
       <div class="hero-flex">
         <div class="hero-text">
-          <h1>Organize your team<br>with modern simplicity</h1>
-          <p>TaskWise gives you clarity on who is doing what, when it's due, and what's next.</p>
-          <button class="primary-btn" onclick="showPage('tasks')" style="width: auto; padding: 14px 32px;">Launch Dashboard</button>
+          <h1>Welcome back,<br><span id="heroName">User</span></h1>
+          <p>Here's what's happening in your team today.</p>
+          
+          <div style="margin-top:20px;">
+             <button class="secondary-btn ai-btn" id="analyzeBtn" onclick="analyzeTrends()" style="margin-bottom:10px;">
+                <span id="analyze-icon">✨</span> Analyze Trends
+             </button>
+             <div class="chart-container">
+                <canvas id="taskChart"></canvas>
+             </div>
+             <!-- AI Analysis Result Card -->
+             <div id="aiAnalysisResult" class="glass" style="display:none; padding:15px; margin-top:15px; border-left:4px solid var(--ai-color); font-size:0.95rem; line-height:1.5;"></div>
+          </div>
         </div>
-        <img src="https://illustrations.popsy.co/amber/work-from-home.svg" class="hero-illustration" alt="Team Work">
-      </div>
-
-      <div class="stats-container">
-        <div class="stat-card">
-          <span class="stat-number" id="stat-total">0</span>
-          <span class="stat-label">Total Tasks</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-number" id="stat-pending">0</span>
-          <span class="stat-label">Pending</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-number" id="stat-members">0</span>
-          <span class="stat-label">Team Members</span>
+        <div style="flex:1; max-width:350px;">
+           <!-- Stats Cards -->
+           <div class="stat-card" style="margin-bottom:20px;">
+             <span class="stat-number" id="stat-pending">0</span>
+             <span class="stat-label">Pending Tasks</span>
+           </div>
+           <div class="stat-card">
+             <span class="stat-number" id="stat-completed">0</span>
+             <span class="stat-label">Completed This Week</span>
+           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- TASKS -->
+  <!-- 2. TASKS BOARD -->
   <section id="tasks" class="page">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
       <h2 style="margin:0; font-size: 2rem;">Task Board</h2>
-      <div style="display:flex; gap:10px;">
-        <input class="search" id="searchInput" placeholder="Search tasks..." onkeyup="handleSearch()" style="width:200px;">
-        <button class="secondary-btn" id="clearFilterBtn" style="display:none; color: #ff4d5e; border-color: #ff4d5e;" onclick="clearMemberFilter()">Clear Filter ✕</button>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <button class="secondary-btn ai-btn" id="suggestBtn" onclick="suggestTeamTasks()"><span id="suggest-icon">✨</span> Auto-Suggest</button>
+        <input class="search" id="searchInput" placeholder="Search..." onkeyup="handleSearch()">
       </div>
     </div>
     
-    <!-- TASK FORM -->
-    <div class="glass card" id="taskFormCard">
-      <div class="input-grid">
-        <div class="full-width">
-          <label>Task Title</label>
-          <input id="taskName" placeholder="What needs to be done?">
+    <!-- Quick Add Form -->
+    <div class="glass card" id="quickAddCard">
+        <div style="display:flex; gap:12px; align-items:center;">
+            <input id="quickTaskInput" placeholder="Type a task title (e.g., 'Fix Navbar Bug by Friday')" style="flex:1;">
+            <button class="primary-btn ai-btn" onclick="quickSmartCreate()" style="flex:0 0 auto; width:auto; padding: 14px 24px;">
+                <span>✨</span> Create
+            </button>
         </div>
-        
-        <div>
-          <label>Due Date</label>
-          <input id="taskDeadline" type="date">
-        </div>
-        
-        <div>
-          <label>Priority</label>
-          <select id="taskPriority">
-            <option value="Low">Low</option>
-            <option value="Medium" selected>Medium</option>
-            <option value="High">High</option>
-          </select>
-        </div>
-
-        <div>
-          <label>Assignee</label>
-          <select id="taskMember"></select>
-        </div>
-        
-        <div>
-          <label>Status</label>
-          <select id="taskStatus">
-            <option value="Not Started">To Do</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Completed">Done</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="btn-group">
-        <button class="secondary-btn" id="cancelEditBtn" style="display:none" onclick="cancelEdit()">Cancel</button>
-        <button class="primary-btn" id="saveTaskBtn" onclick="saveTask()">Create Task</button>
-      </div>
-    </div>
-    
-    <div id="viewerMessage" style="display:none; text-align:center; padding: 20px; opacity: 0.7;">
-        <p><em>You are in Viewer mode. You cannot create or edit tasks.</em></p>
     </div>
 
-    <!-- KANBAN BOARD -->
+    <!-- KANBAN -->
     <div class="kanban-board">
-      
-      <!-- TODO -->
       <div class="kanban-column" id="col-todo" ondrop="drop(event, 'Not Started')" ondragover="allowDrop(event)">
         <div class="kanban-header">To Do <span class="count-badge" id="count-todo">0</span></div>
         <div class="task-list" id="list-todo"></div>
       </div>
-
-      <!-- PROGRESS -->
       <div class="kanban-column" id="col-progress" ondrop="drop(event, 'In Progress')" ondragover="allowDrop(event)">
         <div class="kanban-header">In Progress <span class="count-badge" id="count-progress">0</span></div>
         <div class="task-list" id="list-progress"></div>
       </div>
-
-      <!-- DONE -->
       <div class="kanban-column" id="col-done" ondrop="drop(event, 'Completed')" ondragover="allowDrop(event)">
         <div class="kanban-header">Done <span class="count-badge" id="count-done">0</span></div>
         <div class="task-list" id="list-done"></div>
       </div>
-
     </div>
   </section>
 
-  <!-- TEAM PAGE (MERGED) -->
+  <!-- 3. TEAM PAGE -->
   <section id="team" class="page">
     <div class="team-header">
         <div class="team-name-large" id="displayTeamName">Team Name</div>
-        <p style="opacity:0.7;">Manage your team roles and members.</p>
+        <button class="secondary-btn" onclick="document.getElementById('addMemberModal').classList.add('active')">+ Add Member</button>
     </div>
-
     <div class="glass card">
-        <div class="team-section">
-            <h3>Admins</h3>
-            <div id="team-list-admin"></div>
-        </div>
-        <div class="team-section">
-            <h3>Members</h3>
-            <div id="team-list-member"></div>
-        </div>
-        <div class="team-section">
-            <h3>Viewers</h3>
-            <div id="team-list-viewer"></div>
-        </div>
+        <div id="team-lists-container"></div>
     </div>
-
-    <h2 style="font-size: 2rem; margin-bottom: 20px; margin-top: 60px;">Members Gallery</h2>
-    
-    <!-- ADD MEMBER FORM (MOVED HERE) -->
-    <div class="glass card" id="memberFormCard">
-      <div class="input-grid">
-        <div class="full-width">
-          <label>Name</label>
-          <input id="memberName" placeholder="e.g. Sarah Smith">
-        </div>
-        <div class="full-width">
-          <label>Role</label>
-          <select id="memberRole">
-            <option value="Admin">Admin</option>
-            <option value="Member" selected>Member</option>
-            <option value="Viewer">Viewer</option>
-          </select>
-        </div>
-      </div>
-      <div class="btn-group">
-        <button class="primary-btn" onclick="addMember()">Add Member</button>
-      </div>
-    </div>
-    
-    <p style="opacity: 0.7; margin-bottom: 30px;">Hover an avatar to upload a photo. Click the card to filter tasks.</p>
+    <h3 style="margin-top:40px;">Members Gallery</h3>
     <div class="members-grid" id="memberCards"></div>
   </section>
 
-  <!-- ABOUT -->
+  <!-- 4. SETTINGS/ABOUT -->
   <section id="about" class="page">
     <div class="glass hero">
-      <h2>About TaskWise</h2>
-      <p>A beautiful, frontend-only task management tool.</p>
-      <p style="font-size: 0.9rem; opacity: 0.7;">Version 2.14 • Validation & Glow</p>
-      
-      <div style="margin-top: 40px; display: flex; flex-direction: column; gap: 15px;">
-        <h3 style="margin:0;">Data Management</h3>
-        <p style="font-size: 0.8rem; opacity: 0.8; margin:0;">Backup your local data to a JSON file.</p>
-        <div style="display:flex; gap:12px; margin-top: 10px;">
-          <button class="secondary-btn" onclick="exportData()">⬇ Export Data</button>
-          <button class="secondary-btn" onclick="document.getElementById('importFile').click()">⬆ Import Data</button>
-          <input type="file" id="importFile" style="display:none" onchange="importData(this)">
-        </div>
-        
-        <h3 style="margin-top: 30px; margin-bottom: 0;">Danger Zone</h3>
-        <button class="primary-btn" onclick="logout()" style="background:#b1121f; width:auto;">Logout</button>
-        <button class="primary-btn" onclick="clearData()" style="background:#333; box-shadow:none; width:auto;">Factory Reset (Clear All)</button>
+      <h2>Settings & Data</h2>
+      <p>TaskWise v3.1 Ultimate • Powered by Gemini AI</p>
+      <div style="margin-top: 30px; display:flex; gap:12px;">
+        <button class="secondary-btn" onclick="exportData()">⬇ Export JSON</button>
+        <button class="secondary-btn" onclick="document.getElementById('importFile').click()">⬆ Import JSON</button>
+        <input type="file" id="importFile" style="display:none" onchange="importData(this)">
       </div>
+      <hr style="border:0; border-top:1px solid var(--glass-border); margin: 30px 0;">
+      <h3 style="color:var(--danger)">Danger Zone</h3>
+      <button class="primary-btn" onclick="clearData()" style="background:#333; width:auto;">Factory Reset</button>
     </div>
   </section>
 
 </div>
 
+<!-- MODALS -->
+
+<!-- TASK DETAIL MODAL -->
+<div id="taskDetailModal" class="modal-overlay">
+    <div class="modal-card glass">
+        <div class="modal-header">
+            <div>
+                <input id="detailTitle" class="task-title" style="background:transparent; border:none; font-size:1.5rem; padding:0;" value="Task Title">
+                <div style="display:flex; gap:8px; margin-top:8px;">
+                    <span id="detailStatusBadge" class="priority-badge">STATUS</span>
+                    <select id="detailPriority" style="width:auto; padding:4px 8px; font-size:0.8rem;"></select>
+                </div>
+            </div>
+            <button onclick="closeTaskModal()" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text);">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="input-grid">
+                <div>
+                    <div class="detail-label">Assignee</div>
+                    <select id="detailAssignee"></select>
+                </div>
+                <div>
+                    <div class="detail-label">Due Date</div>
+                    <input type="date" id="detailDate">
+                </div>
+            </div>
+
+            <div style="margin-top:20px;">
+                <div class="detail-label">Description</div>
+                <textarea id="detailDesc" rows="3" placeholder="Add a detailed description..."></textarea>
+            </div>
+
+            <div style="margin-top:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <div class="detail-label">Subtasks</div>
+                    <button class="secondary-btn ai-btn" onclick="generateSubtasksAI()" style="padding:6px 12px; font-size:0.75rem;">
+                        <span id="subtask-ai-icon">✨</span> AI Generate
+                    </button>
+                </div>
+                <!-- Progress Bar -->
+                <div style="background:rgba(0,0,0,0.1); height:6px; border-radius:3px; margin-bottom:10px; overflow:hidden;">
+                    <div id="modalSubtaskProgress" style="width:0%; height:100%; background:var(--success); transition: width 0.3s;"></div>
+                </div>
+                <div id="subtaskList"></div>
+                <div style="display:flex; gap:8px; margin-top:10px;">
+                    <input id="newSubtaskInput" placeholder="Add a step..." style="padding:8px;">
+                    <button class="secondary-btn" onclick="addSubtask()" style="width:auto;">+</button>
+                </div>
+            </div>
+
+            <div style="margin-top:30px;">
+                <div class="detail-label">Activity Log</div>
+                <div id="activityLog" style="max-height:100px; overflow-y:auto;"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="secondary-btn" style="color:var(--danger); border-color:var(--danger);" onclick="deleteTask()">Delete</button>
+            <button class="primary-btn" onclick="saveTaskDetails()" style="width:auto;">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<!-- ADD MEMBER MODAL -->
+<div id="addMemberModal" class="modal-overlay">
+  <div class="glass modal-card" style="max-width:400px;">
+    <div class="modal-header"><h3>Add Member</h3></div>
+    <div class="modal-body">
+      <input id="newMemberName" placeholder="Name" style="margin-bottom:12px;">
+      <select id="newMemberRole"><option value="Admin">Admin</option><option value="Member" selected>Member</option><option value="Viewer">Viewer</option></select>
+    </div>
+    <div class="modal-footer">
+      <button class="secondary-btn" onclick="document.getElementById('addMemberModal').classList.remove('active')">Cancel</button>
+      <button class="primary-btn" onclick="addMember()">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- HIDDEN UPLOAD -->
+<input type="file" id="avatarUpload" style="display:none" accept="image/*">
+
 <script>
-// Define all functions globally
+/* --- GLOBAL STATE --- */
 let members = [];
 let tasks = [];
 let currentUser = null;
-let editingId = null;
-let editingMemberName = null;
-let activeMemberFilter = null;
-let memberToUploadFor = null; 
+let currentTaskOpenId = null;
+let chartInstance = null;
 let isDarkMode = localStorage.getItem('tw_darkmode') === 'true';
 
-// --- THEME INIT ---
-const updateThemeUI = (dark) => {
-  if (dark) {
-    document.body.classList.add('dark-mode');
-    document.getElementById('theme-icon').textContent = '☀️';
-    document.getElementById('theme-icon-auth').textContent = '☀️';
-  } else {
-    document.body.classList.remove('dark-mode');
-    document.getElementById('theme-icon').textContent = '🌙';
-    document.getElementById('theme-icon-auth').textContent = '🌙';
-  }
+/* --- INIT --- */
+document.addEventListener("DOMContentLoaded", () => {
+    // Migration: Ensure new fields exist on old data
+    members = JSON.parse(localStorage.getItem('tw_members')) || [];
+    let storedTasks = JSON.parse(localStorage.getItem('tw_tasks')) || [];
+    
+    // Migrate Tasks
+    tasks = storedTasks.map(t => ({
+        ...t,
+        description: t.description || "",
+        subtasks: t.subtasks || [],
+        logs: t.logs || [`Created on ${new Date(t.id).toLocaleDateString()}`]
+    }));
+    
+    currentUser = JSON.parse(localStorage.getItem('tw_current_user')) || null;
+    updateThemeUI(isDarkMode);
+    checkAuth();
+    
+    // Setup Chart
+    const ctx = document.getElementById('taskChart').getContext('2d');
+    chartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['To Do', 'In Progress', 'Done'],
+            datasets: [{
+                data: [0, 0, 0],
+                backgroundColor: ['#e0e0e0', '#faad14', '#00a854'],
+                borderWidth: 0
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom' } } }
+    });
+});
+
+/* --- THEME & UI --- */
+function updateThemeUI(dark) {
+    if(dark) { document.body.classList.add('dark-mode'); document.getElementById('theme-icon').textContent = '☀️'; }
+    else { document.body.classList.remove('dark-mode'); document.getElementById('theme-icon').textContent = '🌙'; }
+    // Update Chart Colors if needed
+    if(chartInstance && dark) {
+        chartInstance.data.datasets[0].backgroundColor = ['#333', '#d48806', '#00a854'];
+        chartInstance.update();
+    }
+}
+window.toggleTheme = () => { isDarkMode = !isDarkMode; localStorage.setItem('tw_darkmode', isDarkMode); updateThemeUI(isDarkMode); };
+window.showPage = (id) => {
+    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+    document.querySelectorAll(".center button").forEach(b => b.classList.remove("active"));
+    const btn = document.querySelector(`.center button[onclick="showPage('${id}')"]`);
+    if(btn) btn.classList.add("active");
+    if(id === 'home') updateChart(); 
 };
 
-window.toggleTheme = () => {
-  isDarkMode = !isDarkMode;
-  localStorage.setItem('tw_darkmode', isDarkMode);
-  updateThemeUI(isDarkMode);
-};
-
+/* --- AUTH --- */
+function checkAuth() {
+    if (!currentUser) {
+        document.getElementById('authScreen').classList.add('active');
+        document.getElementById('mainContent').style.opacity = '0';
+        document.getElementById('navbar').style.opacity = '0';
+    } else {
+        document.getElementById('authScreen').classList.remove('active');
+        document.getElementById('mainContent').style.opacity = '1';
+        document.getElementById('navbar').style.opacity = '1';
+        document.getElementById('heroName').textContent = currentUser.name;
+        document.getElementById('navUserName').textContent = currentUser.name;
+        document.getElementById('navUserTeam').textContent = currentUser.team;
+        document.getElementById('displayTeamName').textContent = currentUser.team;
+        renderAll();
+    }
+}
 window.toggleTeamInput = () => {
-  const role = document.getElementById('authRole').value;
-  const label = document.getElementById('teamLabel');
-  if (role === 'Admin') {
-      label.textContent = "Create Team";
-  } else if (role === 'Member') {
-      label.textContent = "Join Team";
-  } else {
-      label.textContent = "View Team";
-  }
+    const r = document.getElementById('authRole').value;
+    document.getElementById('teamLabel').textContent = r === 'Admin' ? "Create Team" : (r === 'Member' ? "Join Team" : "View Team");
 };
-
 window.completeAuth = () => {
-  const name = document.getElementById('authName').value.trim();
-  const role = document.getElementById('authRole').value;
-  const team = document.getElementById('authTeam').value.trim();
-  
-  if(!name) {
-    showToast("Please enter your name", "error");
-    return;
-  }
-  
-  if(!team) {
-    showToast("Please enter a team name", "error");
-    return;
-  }
-
-  const newUser = { name, role, team, image: null };
-  
-  const existing = members.find(m => m.name === name && m.team === team);
-  if (!existing) {
-      members.push(newUser);
-      saveData();
-  } else {
-      if(existing.role !== role) {
-          existing.role = role;
-          saveData();
-      }
-  }
-
-  currentUser = newUser;
-  localStorage.setItem('tw_current_user', JSON.stringify(currentUser));
-  
-  checkAuth();
-  showToast(`Welcome, ${name}!`);
-};
-
-window.logout = () => {
-    currentUser = null;
-    localStorage.removeItem('tw_current_user');
+    const name = document.getElementById('authName').value.trim();
+    const role = document.getElementById('authRole').value;
+    const team = document.getElementById('authTeam').value.trim();
+    if(!name || !team) return showToast("Name and Team required", "error");
+    
+    let existing = members.find(m => m.name === name && m.team === team);
+    if (!existing) { members.push({ name, role, team, image: null }); saveData(); }
+    
+    currentUser = { name, role, team };
+    localStorage.setItem('tw_current_user', JSON.stringify(currentUser));
     checkAuth();
 };
+window.logout = () => { currentUser = null; localStorage.removeItem('tw_current_user'); checkAuth(); };
 
-window.showPage = (id) => {
-  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-
-  document.querySelectorAll(".center button").forEach(b => b.classList.remove("active"));
-  const btn = document.querySelector(`.center button[onclick="showPage('${id}')"]`);
-  if(btn) btn.classList.add("active");
-};
-
-function showToast(message, type = 'success') {
-  const container = document.getElementById('toast-container');
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-  toast.textContent = message;
-  container.appendChild(toast);
-  setTimeout(() => {
-    toast.style.opacity = '0';
-    toast.style.transform = 'translateY(20px)';
-    setTimeout(() => toast.remove(), 300);
-  }, 3000);
+/* --- CORE LOGIC --- */
+function renderAll() {
+    renderTasks();
+    renderMembers();
+    renderTeamLists();
+    updateChart();
 }
 
-function updateDashboard() {
-  if (!currentUser) return;
-  const teamTasks = tasks.filter(t => t.team === currentUser.team);
-  const teamMembers = members.filter(m => m.team === currentUser.team);
-  
-  document.getElementById('stat-total').textContent = teamTasks.length;
-  document.getElementById('stat-members').textContent = teamMembers.length;
-  const pending = teamTasks.filter(t => t.status !== 'Completed').length;
-  document.getElementById('stat-pending').textContent = pending;
+function saveData() {
+    localStorage.setItem('tw_members', JSON.stringify(members));
+    localStorage.setItem('tw_tasks', JSON.stringify(tasks));
 }
 
-function getAvatar(memberObj) {
-  if (memberObj.image) return memberObj.image;
-  return `https://ui-avatars.com/api/?name=${encodeURIComponent(memberObj.name)}&background=random&color=fff&size=128&bold=true`;
-}
-
-function renderTeamPage() {
-    if(!currentUser) return;
-    const teamListAdmin = document.getElementById('team-list-admin');
-    const teamListMember = document.getElementById('team-list-member');
-    const teamListViewer = document.getElementById('team-list-viewer');
+/* --- TASKS --- */
+function renderTasks(term = "") {
+    if (!currentUser) return;
+    ['list-todo', 'list-progress', 'list-done'].forEach(id => document.getElementById(id).innerHTML = "");
+    const counts = { 'Not Started': 0, 'In Progress': 0, 'Completed': 0 };
     
-    teamListAdmin.innerHTML = '';
-    teamListMember.innerHTML = '';
-    teamListViewer.innerHTML = '';
+    const teamTasks = tasks.filter(t => t.team === currentUser.team && (t.name.toLowerCase().includes(term.toLowerCase()) || t.assigned.toLowerCase().includes(term.toLowerCase())));
     
-    const teamMembers = members.filter(m => m.team === currentUser.team);
-    
-    teamMembers.forEach(m => {
-        const avatar = getAvatar(m);
-        let actionHtml = '';
-        
-        if(currentUser.role === 'Admin') {
-            actionHtml = `<div class="t-actions"><button class="secondary-btn" onclick="openEditMember('${m.name}')">Edit</button></div>`;
-        }
-        
-        const html = `
-          <div class="team-list-item">
-              <div class="t-user-info">
-                  <img src="${avatar}" class="t-avatar">
-                  <span style="font-weight:600;">${m.name}</span>
-                  <span class="t-role-badge">${m.role}</span>
-              </div>
-              ${actionHtml}
-          </div>
-        `;
-        
-        if(m.role === 'Admin') teamListAdmin.innerHTML += html;
-        else if(m.role === 'Member') teamListMember.innerHTML += html;
-        else teamListViewer.innerHTML += html;
+    teamTasks.forEach(t => {
+        counts[t.status]++;
+        const card = createTaskCard(t);
+        if(t.status === 'Not Started') document.getElementById('list-todo').appendChild(card);
+        else if(t.status === 'In Progress') document.getElementById('list-progress').appendChild(card);
+        else document.getElementById('list-done').appendChild(card);
     });
     
-    if(teamListAdmin.innerHTML === '') teamListAdmin.innerHTML = '<p style="opacity:0.5; padding:10px;">No admins</p>';
-    if(teamListMember.innerHTML === '') teamListMember.innerHTML = '<p style="opacity:0.5; padding:10px;">No members</p>';
-    if(teamListViewer.innerHTML === '') teamListViewer.innerHTML = '<p style="opacity:0.5; padding:10px;">No viewers</p>';
-}
-
-window.openEditMember = (name) => {
-    const member = members.find(m => m.name === name && m.team === currentUser.team);
-    if(!member) return;
+    document.getElementById('count-todo').textContent = counts['Not Started'];
+    document.getElementById('count-progress').textContent = counts['In Progress'];
+    document.getElementById('count-done').textContent = counts['Completed'];
     
-    editingMemberName = name;
-    document.getElementById('editMemberName').value = member.name;
-    document.getElementById('editMemberRole').value = member.role;
-    
-    document.getElementById('editMemberModal').classList.add('active');
-};
-
-window.closeModal = () => {
-    document.getElementById('editMemberModal').classList.remove('active');
-    editingMemberName = null;
-};
-
-window.saveMemberEdit = () => {
-    if(!editingMemberName) return;
-    
-    const newName = document.getElementById('editMemberName').value.trim();
-    const newRole = document.getElementById('editMemberRole').value;
-    
-    if(!newName) return showToast("Name is required", "error");
-    
-    const member = members.find(m => m.name === editingMemberName && m.team === currentUser.team);
-    if(member) {
-        member.name = newName;
-        member.role = newRole;
-        saveData();
-        renderTeamPage();
-        renderMembers();
-        showToast("Member updated");
-        closeModal();
-    }
-};
-
-function renderTasks(filterText = "") {
-  if (!currentUser) return;
-  
-  ['list-todo', 'list-progress', 'list-done'].forEach(id => document.getElementById(id).innerHTML = "");
-
-  let counts = { 'Not Started': 0, 'In Progress': 0, 'Completed': 0 };
-
-  const filtered = tasks.filter(t => {
-    const isTeam = t.team === currentUser.team;
-    const term = filterText.toLowerCase();
-    const matchesSearch = t.name.toLowerCase().includes(term) || t.assigned.toLowerCase().includes(term);
-    const matchesMember = activeMemberFilter ? t.assigned === activeMemberFilter : true;
-    return isTeam && matchesSearch && matchesMember;
-  });
-
-  filtered.forEach(t => {
-    counts[t.status]++;
-    const card = createTaskCard(t);
-    if(t.status === 'Not Started') document.getElementById('list-todo').appendChild(card);
-    else if(t.status === 'In Progress') document.getElementById('list-progress').appendChild(card);
-    else if(t.status === 'Completed') document.getElementById('list-done').appendChild(card);
-  });
-
-  document.getElementById('count-todo').textContent = counts['Not Started'];
-  document.getElementById('count-progress').textContent = counts['In Progress'];
-  document.getElementById('count-done').textContent = counts['Completed'];
-
-  updateDashboard();
+    // Update Stats on Home
+    document.getElementById('stat-pending').textContent = teamTasks.length - counts['Completed'];
+    document.getElementById('stat-completed').textContent = counts['Completed'];
 }
 
 function createTaskCard(t) {
-  const div = document.createElement('div');
-  div.className = 'kanban-task';
-  
-  if (currentUser.role === 'Viewer') {
-      div.draggable = false;
-      div.style.cursor = 'default';
-  } else {
-      div.draggable = true;
-      div.ondragstart = (e) => drag(e, t.id);
-      div.onclick = () => loadTaskForEdit(t);
-  }
+    const div = document.createElement('div');
+    div.className = 'kanban-task';
+    div.draggable = true;
+    div.ondragstart = (e) => e.dataTransfer.setData("text", t.id);
+    div.onclick = () => openTaskModal(t.id);
 
-  const today = new Date(); today.setHours(0,0,0,0);
-  let dateStatus = null;
-  if(t.deadline && t.status !== 'Completed') {
-     const d = new Date(t.deadline); d.setHours(0,0,0,0);
-     if(d < today) dateStatus = 'dot-overdue';
-     else if(d.getTime() === today.getTime()) dateStatus = 'dot-today';
-  }
-  let dotHtml = dateStatus ? `<div class="deadline-indicator ${dateStatus}"></div>` : '';
-  
-  const assignee = members.find(m => m.name === t.assigned && m.team === t.team);
-  const avatarUrl = assignee ? getAvatar(assignee) : `https://ui-avatars.com/api/?name=${encodeURIComponent(t.assigned)}&background=random&color=fff&size=128&bold=true`;
+    // Deadline Logic
+    let dateHtml = "";
+    if(t.deadline && t.status !== 'Completed') {
+        const d = new Date(t.deadline); const today = new Date(); today.setHours(0,0,0,0);
+        if(d < today) dateHtml = `<div class="deadline-dot dot-overdue"></div>`;
+    }
 
-  div.innerHTML = `
-    ${dotHtml}
-    <div class="task-title">${t.name}</div>
-    <div class="task-footer">
-      <span class="priority-badge badge-${t.priority.toLowerCase()}">${t.priority}</span>
-      <div class="task-assignee">
-         <img src="${avatarUrl}" class="mini-avatar"> ${t.assigned}
-      </div>
-    </div>
-  `;
-  return div;
+    // Avatar
+    const assignee = members.find(m => m.name === t.assigned && m.team === t.team);
+    const avatar = assignee && assignee.image ? assignee.image : `https://ui-avatars.com/api/?name=${t.assigned}&background=random&color=fff`;
+
+    // Subtask Progress
+    let progressHtml = "";
+    if(t.subtasks && t.subtasks.length > 0) {
+        const done = t.subtasks.filter(s => s.done).length;
+        const pct = (done / t.subtasks.length) * 100;
+        progressHtml = `<div class="subtask-progress"><div class="subtask-bar" style="width:${pct}%"></div></div><div style="font-size:0.65rem; color:var(--text-secondary); margin-top:4px;">${done}/${t.subtasks.length} steps</div>`;
+    }
+
+    div.innerHTML = `
+        ${dateHtml}
+        <div class="task-title">${t.name}</div>
+        <div class="task-footer">
+            <span class="priority-badge badge-${t.priority.toLowerCase()}">${t.priority}</span>
+            <img src="${avatar}" class="mini-avatar" title="${t.assigned}">
+        </div>
+        ${progressHtml}
+    `;
+    return div;
 }
 
-window.allowDrop = (ev) => ev.preventDefault();
-window.drag = (ev, id) => ev.dataTransfer.setData("text", id);
-window.drop = (ev, newStatus) => {
-  ev.preventDefault();
-  if (currentUser.role === 'Viewer') return; 
+/* --- QUICK ADD --- */
+async function quickSmartCreate() {
+    const input = document.getElementById('quickTaskInput');
+    const text = input.value.trim();
+    if(!text) return;
+    
+    input.disabled = true; 
+    
+    try {
+        const prompt = `Parse this task: "${text}". Today is ${new Date().toISOString().split('T')[0]}. Return strictly valid JSON with this structure: { "name": string, "deadline": "YYYY-MM-DD"|null, "priority": "Low"|"Medium"|"High" }. No markdown code blocks.`;
+        // Pass true for JSON mode
+        const raw = await callGemini(prompt, true);
+        const data = JSON.parse(raw);
+        
+        const newTask = {
+            id: Date.now(),
+            name: data.name || text,
+            description: "",
+            deadline: data.deadline || "",
+            priority: data.priority || "Medium",
+            assigned: currentUser.name,
+            status: "Not Started",
+            team: currentUser.team,
+            subtasks: [],
+            logs: [`Created via Smart Add on ${new Date().toLocaleTimeString()}`]
+        };
+        tasks.push(newTask);
+        saveData();
+        renderTasks();
+        input.value = "";
+        showToast("Task Created! ✨");
+    } catch(e) {
+        console.error(e);
+        // Fallback
+        tasks.push({ id: Date.now(), name: text, priority: "Medium", status: "Not Started", team: currentUser.team, assigned: currentUser.name, subtasks:[], logs:['Created'] });
+        saveData(); renderTasks(); input.value = "";
+    } finally {
+        input.disabled = false;
+    }
+}
 
-  const id = parseInt(ev.dataTransfer.getData("text"));
-  const task = tasks.find(t => t.id === id);
-  if(task) {
-    const oldStatus = task.status;
-    task.status = newStatus;
+/* --- MODAL LOGIC --- */
+function openTaskModal(id) {
+    currentTaskOpenId = id;
+    const t = tasks.find(x => x.id === id);
+    if(!t) return;
+
+    // Fill Fields
+    document.getElementById('detailTitle').value = t.name;
+    document.getElementById('detailDate').value = t.deadline;
+    document.getElementById('detailDesc').value = t.description || "";
+    document.getElementById('detailStatusBadge').textContent = t.status;
+    
+    // Fill Selects
+    const prioSel = document.getElementById('detailPriority');
+    prioSel.innerHTML = `<option value="Low">Low</option><option value="Medium">Medium</option><option value="High">High</option>`;
+    prioSel.value = t.priority;
+
+    const assignSel = document.getElementById('detailAssignee');
+    assignSel.innerHTML = "";
+    members.filter(m => m.team === currentUser.team).forEach(m => {
+        const opt = document.createElement('option'); opt.value = m.name; opt.textContent = m.name;
+        assignSel.appendChild(opt);
+    });
+    assignSel.value = t.assigned;
+
+    renderSubtasks(t);
+    renderLogs(t);
+
+    document.getElementById('taskDetailModal').classList.add('active');
+}
+
+function closeTaskModal() {
+    document.getElementById('taskDetailModal').classList.remove('active');
+    currentTaskOpenId = null;
+}
+
+function saveTaskDetails() {
+    if(!currentTaskOpenId) return;
+    const t = tasks.find(x => x.id === currentTaskOpenId);
+    if(!t) return;
+
+    const oldAssigned = t.assigned;
+    const newAssigned = document.getElementById('detailAssignee').value;
+
+    t.name = document.getElementById('detailTitle').value;
+    t.description = document.getElementById('detailDesc').value;
+    t.deadline = document.getElementById('detailDate').value;
+    t.priority = document.getElementById('detailPriority').value;
+    t.assigned = newAssigned;
+
+    if(oldAssigned !== newAssigned) t.logs.push(`Reassigned to ${newAssigned}`);
+
     saveData();
     renderTasks();
-    if(newStatus === 'Completed' && oldStatus !== 'Completed') {
-      showToast(`Task Completed! 🎉`);
-      fireConfetti();
-    } else {
-      showToast(`Moved to ${newStatus}`);
-    }
-  }
-};
-
-function fireConfetti() {
-  const canvas = document.getElementById('confetti-canvas');
-  const ctx = canvas.getContext('2d');
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  let particles = [];
-  const colors = ['#b1121f', '#ff4d5e', '#ffd700', '#22863a', '#00bfff'];
-  for(let i=0; i<100; i++) {
-    particles.push({
-      x: Math.random() * canvas.width, y: -10, r: Math.random() * 6 + 2, d: Math.random() * 20 + 10,
-      color: colors[Math.floor(Math.random() * colors.length)], tilt: Math.floor(Math.random() * 10) - 10,
-      tiltAngleIncremental: (Math.random() * 0.07) + 0.05, tiltAngle: 0
-    });
-  }
-  let angle = 0;
-  function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    angle += 0.01;
-    for(let i = 0; i < particles.length; i++) {
-      let p = particles[i];
-      ctx.beginPath(); ctx.lineWidth = p.r / 2; ctx.strokeStyle = p.color;
-      ctx.moveTo(p.x + p.tilt + (p.r / 4), p.y); ctx.lineTo(p.x + p.tilt, p.y + p.tilt + (p.r / 4)); ctx.stroke();
-      p.y += (Math.cos(angle + p.d) + 1 + p.r / 2) / 2; p.x += Math.sin(angle); p.tilt = Math.sin(p.tiltAngle - (i / 3)) * 15;
-    }
-    particles = particles.filter(p => p.y < canvas.height);
-    if(particles.length > 0) requestAnimationFrame(draw); else ctx.clearRect(0,0,canvas.width,canvas.height);
-  }
-  draw();
+    closeTaskModal();
+    showToast("Changes saved");
 }
 
-window.saveTask = () => {
-  const taskNameInput = document.getElementById("taskName");
-  if (!taskNameInput.value) return showToast("Enter a task title", "error");
-
-  const taskDeadlineInput = document.getElementById("taskDeadline");
-  const taskPrioritySelect = document.getElementById("taskPriority");
-  const taskMemberSelect = document.getElementById("taskMember");
-  const taskStatusSelect = document.getElementById("taskStatus");
-
-  if(editingId) {
-    const task = tasks.find(t => t.id === editingId);
-    if(task) {
-      task.name = taskNameInput.value;
-      task.deadline = taskDeadlineInput.value;
-      task.priority = taskPrioritySelect.value;
-      task.assigned = taskMemberSelect.value;
-      task.status = taskStatusSelect.value;
-      showToast("Task updated!");
-    }
-    editingId = null;
-    document.getElementById("cancelEditBtn").style.display = 'none';
-    document.getElementById("saveTaskBtn").textContent = 'Create Task';
-  } else {
-    const newTask = {
-      id: Date.now(),
-      name: taskNameInput.value,
-      deadline: taskDeadlineInput.value,
-      priority: taskPrioritySelect.value,
-      assigned: taskMemberSelect.value,
-      status: taskStatusSelect.value,
-      team: currentUser.team 
-    };
-    tasks.push(newTask);
-    showToast("Task created!");
-  }
-  saveData(); resetForm(); renderTasks();
-};
-
-function loadTaskForEdit(task) {
-  if (currentUser.role === 'Viewer') return;
-  editingId = task.id;
-  document.getElementById("taskName").value = task.name;
-  document.getElementById("taskDeadline").value = task.deadline;
-  document.getElementById("taskPriority").value = task.priority;
-  document.getElementById("taskMember").value = task.assigned;
-  document.getElementById("taskStatus").value = task.status;
-  document.getElementById("saveTaskBtn").textContent = 'Update Task';
-  document.getElementById("cancelEditBtn").style.display = 'inline-block';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-window.cancelEdit = () => {
-  editingId = null; resetForm();
-  document.getElementById("saveTaskBtn").textContent = 'Create Task'; 
-  document.getElementById("cancelEditBtn").style.display = 'none';
-};
-
-function resetForm() {
-  document.getElementById("taskName").value = ""; 
-  document.getElementById("taskDeadline").value = "";
-  document.getElementById("taskPriority").value = "Medium"; 
-  document.getElementById("taskStatus").value = "Not Started";
-}
-
-window.addMember = () => {
-  const name = document.getElementById("memberName").value.trim();
-  const role = document.getElementById("memberRole").value;
-  if (!name) return showToast("Enter a name", "error");
-  
-  members.push({ name, role, team: currentUser.team, image: null });
-  saveData();
-  document.getElementById("memberName").value = "";
-  renderMembers();
-  renderTeamPage(); 
-  showToast("Member added!");
-};
-
-function renderMembers(filterText = "") {
-  if (!currentUser) return;
-  
-  const container = document.getElementById("memberCards");
-  const taskMemberSelect = document.getElementById("taskMember");
-  container.innerHTML = ""; 
-  taskMemberSelect.innerHTML = "";
-  
-  const teamMembers = members.filter(m => m.team === currentUser.team);
-  const filteredMembers = teamMembers.filter(m => m.name.toLowerCase().includes(filterText.toLowerCase()) || m.role.toLowerCase().includes(filterText.toLowerCase()));
-
-  teamMembers.forEach(m => {
-    const opt = document.createElement("option"); opt.value = m.name; opt.textContent = m.name; taskMemberSelect.appendChild(opt);
-  });
-
-  filteredMembers.forEach(m => {
-    const card = document.createElement("div"); card.className = "glass member-card";
-    if(activeMemberFilter === m.name) card.classList.add('member-filter-active');
-    
-    card.onclick = (e) => {
-      if(e.target.closest('.upload-overlay')) return;
-      toggleMemberFilter(m.name);
-    };
-
-    const avatarSrc = getAvatar(m);
-    
-    let overlayHtml = '';
-    if(currentUser.role !== 'Viewer') {
-        overlayHtml = `<div class="upload-overlay" onclick="triggerUpload('${m.name}')">📷</div>`;
-    }
-
-    card.innerHTML = `
-      <div class="member-avatar-container">
-         <img src="${avatarSrc}" class="member-avatar">
-         ${overlayHtml}
-      </div>
-      <h3>${m.name}</h3>
-      <p class="role">${m.role}</p>
-    `;
-    container.appendChild(card);
-  });
-  updateDashboard();
-}
-
-window.triggerUpload = (memberName) => {
-  memberToUploadFor = memberName;
-  document.getElementById("avatarUpload").click();
-};
-
-document.getElementById("avatarUpload").addEventListener('change', function() {
-  if (this.files && this.files[0] && memberToUploadFor) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const base64Image = e.target.result;
-      const member = members.find(m => m.name === memberToUploadFor && m.team === currentUser.team);
-      if(member) {
-        member.image = base64Image;
+function deleteTask() {
+    if(confirm("Delete this task?")) {
+        tasks = tasks.filter(t => t.id !== currentTaskOpenId);
         saveData();
-        renderMembers();
-        renderTasks(); 
-        renderTeamPage();
-        showToast("Avatar updated!");
-      }
-      memberToUploadFor = null;
-      this.value = '';
-    };
-    reader.readAsDataURL(this.files[0]);
-  }
-});
-
-window.toggleMemberFilter = (name) => {
-  if(activeMemberFilter === name) {
-    activeMemberFilter = null; document.getElementById('clearFilterBtn').style.display = 'none';
-  } else {
-    activeMemberFilter = name; document.getElementById('clearFilterBtn').style.display = 'block';
-    showPage('tasks'); showToast(`Filtering by ${name}`);
-  }
-  renderMembers(); renderTasks();
-};
-
-window.clearMemberFilter = () => {
-  activeMemberFilter = null; document.getElementById('clearFilterBtn').style.display = 'none';
-  renderMembers(); renderTasks();
-};
-
-window.exportData = () => {
-  const data = { members, tasks };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = `taskwise_backup_${new Date().toISOString().split('T')[0]}.json`;
-  a.click(); showToast("Data exported!");
-};
-
-window.importData = (input) => {
-  const file = input.files[0]; if(!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    try {
-      const data = JSON.parse(e.target.result);
-      if(data.members && data.tasks) {
-        members = data.members; tasks = data.tasks;
-        saveData(); location.reload();
-      } else showToast("Invalid backup file", "error");
-    } catch(err) { showToast("Error reading file", "error"); }
-  };
-  reader.readAsText(file);
-};
-
-function saveData() { localStorage.setItem('tw_members', JSON.stringify(members)); localStorage.setItem('tw_tasks', JSON.stringify(tasks)); }
-window.clearData = () => { if(confirm("Erase all data?")) { localStorage.clear(); location.reload(); } };
-
-window.handleSearch = () => {
-  const term = document.getElementById("searchInput").value;
-  renderTasks(term);
-  renderMembers(term);
-};
-
-function checkAuth() {
-  const authScreen = document.getElementById('authScreen');
-  const mainContent = document.getElementById('mainContent');
-  const navbar = document.getElementById('navbar');
-
-  if (!currentUser) {
-    authScreen.classList.add('active');
-    mainContent.style.opacity = '0';
-    mainContent.style.pointerEvents = 'none';
-    navbar.style.opacity = '0';
-    navbar.style.pointerEvents = 'none';
-  } else {
-    authScreen.classList.remove('active');
-    mainContent.style.opacity = '1';
-    mainContent.style.pointerEvents = 'auto';
-    navbar.style.opacity = '1';
-    navbar.style.pointerEvents = 'auto';
-    
-    document.getElementById('navUserName').textContent = currentUser.name;
-    document.getElementById('navUserTeam').textContent = currentUser.team;
-    document.getElementById('displayTeamName').textContent = currentUser.team;
-    
-    applyRoleRestrictions();
-    renderMembers();
-    renderTasks();
-    renderTeamPage();
-  }
-}
-
-function applyRoleRestrictions() {
-    const taskForm = document.getElementById('taskFormCard');
-    const memberForm = document.getElementById('memberFormCard');
-    const viewerMsg = document.getElementById('viewerMessage');
-    
-    if (currentUser.role === 'Viewer') {
-        taskForm.style.display = 'none';
-        memberForm.style.display = 'none';
-        viewerMsg.style.display = 'block';
-    } else {
-        taskForm.style.display = 'block';
-        memberForm.style.display = 'block';
-        viewerMsg.style.display = 'none';
+        renderTasks();
+        closeTaskModal();
     }
 }
 
-// Cursor Glow Logic
-document.addEventListener('mousemove', (e) => {
-    const glow = document.getElementById('cursor-glow');
-    glow.style.left = e.clientX + 'px';
-    glow.style.top = e.clientY + 'px';
-});
+/* --- SUBTASKS --- */
+function renderSubtasks(t) {
+    const container = document.getElementById('subtaskList');
+    container.innerHTML = "";
+    const list = t.subtasks || [];
+    
+    list.forEach((sub, idx) => {
+        const div = document.createElement('div');
+        div.className = `subtask-item ${sub.done ? 'completed' : ''}`;
+        div.innerHTML = `
+            <input type="checkbox" class="checkbox-round" ${sub.done ? 'checked' : ''} onchange="toggleSubtask(${idx})">
+            <span style="flex:1;">${sub.title}</span>
+            <button onclick="deleteSubtask(${idx})" style="background:none; border:none; color:var(--danger); cursor:pointer;">×</button>
+        `;
+        container.appendChild(div);
+    });
 
-// Initial Setup
-document.addEventListener("DOMContentLoaded", () => {
-    members = JSON.parse(localStorage.getItem('tw_members')) || [];
-    tasks = JSON.parse(localStorage.getItem('tw_tasks')) || [];
-    currentUser = JSON.parse(localStorage.getItem('tw_current_user')) || null;
-    isDarkMode = localStorage.getItem('tw_darkmode') === 'true';
-    updateThemeUI(isDarkMode);
-    checkAuth();
-});
+    // Update Progress Bar in Modal
+    const done = list.filter(s => s.done).length;
+    const pct = list.length ? (done / list.length) * 100 : 0;
+    document.getElementById('modalSubtaskProgress').style.width = `${pct}%`;
+}
+
+function addSubtask() {
+    const input = document.getElementById('newSubtaskInput');
+    const val = input.value.trim();
+    if(!val) return;
+    
+    const t = tasks.find(x => x.id === currentTaskOpenId);
+    t.subtasks.push({ title: val, done: false });
+    t.logs.push(`Added step: ${val}`);
+    input.value = "";
+    saveData();
+    renderSubtasks(t);
+}
+
+function toggleSubtask(idx) {
+    const t = tasks.find(x => x.id === currentTaskOpenId);
+    t.subtasks[idx].done = !t.subtasks[idx].done;
+    saveData();
+    renderSubtasks(t);
+}
+
+function deleteSubtask(idx) {
+    const t = tasks.find(x => x.id === currentTaskOpenId);
+    t.subtasks.splice(idx, 1);
+    saveData();
+    renderSubtasks(t);
+}
+
+/* --- LOGS --- */
+function renderLogs(t) {
+    const div = document.getElementById('activityLog');
+    div.innerHTML = t.logs.map(l => `<div class="log-item">${l}</div>`).reverse().join('');
+}
+
+/* --- DRAG & DROP --- */
+window.allowDrop = (e) => e.preventDefault();
+window.drop = (e, status) => {
+    e.preventDefault();
+    const id = parseInt(e.dataTransfer.getData("text"));
+    const t = tasks.find(x => x.id === id);
+    if(t && t.status !== status) {
+        t.status = status;
+        t.logs.push(`Moved to ${status} on ${new Date().toLocaleTimeString()}`);
+        saveData();
+        renderTasks();
+        if(status === 'Completed') {
+            showToast("Task Completed! 🎉");
+            fireConfetti();
+        }
+    }
+};
+
+/* --- CHART --- */
+function updateChart() {
+    if(!chartInstance || !currentUser) return;
+    const teamTasks = tasks.filter(t => t.team === currentUser.team);
+    const todo = teamTasks.filter(t => t.status === 'Not Started').length;
+    const prog = teamTasks.filter(t => t.status === 'In Progress').length;
+    const done = teamTasks.filter(t => t.status === 'Completed').length;
+    
+    chartInstance.data.datasets[0].data = [todo, prog, done];
+    chartInstance.update();
+}
+
+/* --- AI FEATURES --- */
+async function callGemini(text, isJson = false) {
+    const apiKey = ""; // The environment provides the key at runtime
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+    
+    const payload = {
+        contents: [{ parts: [{ text }] }]
+    };
+    
+    // Request JSON strictly if needed
+    if (isJson) {
+        payload.generationConfig = { responseMimeType: "application/json" };
+    }
+
+    // Exponential Backoff Retry Logic
+    let delay = 1000;
+    for (let i = 0; i < 5; i++) {
+        try {
+            const resp = await fetch(url, { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify(payload) 
+            });
+            
+            if (!resp.ok) throw new Error(`API Error: ${resp.status}`);
+            
+            const json = await resp.json();
+            const resultText = json.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (!resultText) throw new Error("No content in response");
+            
+            return resultText;
+        } catch (e) {
+            console.error(`Attempt ${i+1} failed`, e);
+            if (i === 4) throw e; // Fail after 5 attempts
+            await new Promise(r => setTimeout(r, delay));
+            delay *= 2;
+        }
+    }
+}
+
+async function analyzeTrends() {
+    if(!chartInstance || !currentUser) return;
+    
+    const btn = document.getElementById('analyzeBtn');
+    const icon = document.getElementById('analyze-icon');
+    const resultDiv = document.getElementById('aiAnalysisResult');
+    
+    // UI State: Loading
+    icon.textContent = "⏳";
+    btn.disabled = true;
+    resultDiv.style.display = 'none';
+    
+    // Get stats directly from chart data
+    const [todo, prog, done] = chartInstance.data.datasets[0].data;
+    const total = todo + prog + done;
+    
+    if(total === 0) {
+        resultDiv.textContent = "Not enough data to analyze yet. Add some tasks!";
+        resultDiv.style.display = 'block';
+        icon.textContent = "✨";
+        btn.disabled = false;
+        return;
+    }
+    
+    const prompt = `
+      Act as a project manager.
+      Stats for Team "${currentUser.team}":
+      - To Do: ${todo}
+      - In Progress: ${prog}
+      - Done: ${done}
+      
+      Give 2 short, actionable sentences of advice/analysis. 
+      Be encouraging but professional. No markdown.
+    `;
+    
+    try {
+        const text = await callGemini(prompt, false);
+        resultDiv.textContent = text;
+        resultDiv.style.display = 'block';
+    } catch(e) {
+        showToast("Analysis failed", "error");
+    } finally {
+        icon.textContent = "✨";
+        btn.disabled = false;
+    }
+}
+
+async function generateSubtasksAI() {
+    if(!currentTaskOpenId) return;
+    const t = tasks.find(x => x.id === currentTaskOpenId);
+    
+    const icon = document.getElementById('subtask-ai-icon');
+    icon.textContent = "⏳";
+    
+    const prompt = `Task: "${t.name}". Description: "${t.description}". Generate 3-5 concrete, actionable checklist steps for this task. Return strictly valid JSON array of strings. No markdown.`;
+    
+    try {
+        const raw = await callGemini(prompt, true);
+        const steps = JSON.parse(raw);
+        
+        if(Array.isArray(steps)) {
+            steps.forEach(step => t.subtasks.push({ title: step, done: false }));
+            t.logs.push(`AI generated ${steps.length} steps`);
+            saveData();
+            renderSubtasks(t);
+            showToast("Steps Generated!");
+        } else {
+             throw new Error("Invalid format");
+        }
+    } catch(e) {
+        showToast("AI Failed", "error");
+    } finally {
+        icon.textContent = "✨";
+    }
+}
+
+async function suggestTeamTasks() {
+    if(!currentUser) return;
+    const btn = document.getElementById('suggestBtn');
+    btn.disabled = true;
+    const prompt = `Team: "${currentUser.team}". Role: "${currentUser.role}". Suggest 3 relevant task titles. Return strictly valid JSON array of strings.`;
+    try {
+        const raw = await callGemini(prompt, true);
+        const titles = JSON.parse(raw);
+        if(Array.isArray(titles)) {
+            titles.forEach((name, i) => tasks.push({
+                id: Date.now()+i, name, team: currentUser.team, assigned: currentUser.name, status: "Not Started", priority:"Medium", subtasks:[], logs:['AI Suggested']
+            }));
+            saveData(); renderTasks(); showToast("Tasks Added!");
+        }
+    } catch(e) { showToast("Error", "error"); }
+    finally { btn.disabled = false; }
+}
+
+/* --- TEAM & MEMBERS --- */
+function renderMembers() {
+    const grid = document.getElementById('memberCards');
+    grid.innerHTML = "";
+    members.filter(m => m.team === currentUser.team).forEach(m => {
+        const img = m.image || `https://ui-avatars.com/api/?name=${m.name}&background=random&color=fff`;
+        const div = document.createElement('div'); div.className = "glass member-card";
+        div.innerHTML = `<img src="${img}" style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin-bottom:10px;"><h3>${m.name}</h3><p>${m.role}</p>`;
+        div.onclick = () => document.getElementById('avatarUpload').click(); // Simplified upload trigger
+        grid.appendChild(div);
+    });
+}
+function renderTeamLists() {
+    const div = document.getElementById('team-lists-container');
+    div.innerHTML = "";
+    members.filter(m => m.team === currentUser.team).forEach(m => {
+        div.innerHTML += `<div class="team-list-item"><span><b>${m.name}</b> (${m.role})</span></div>`;
+    });
+}
+window.addMember = () => {
+    const name = document.getElementById('newMemberName').value;
+    const role = document.getElementById('newMemberRole').value;
+    if(name) {
+        members.push({ name, role, team: currentUser.team, image:null });
+        saveData(); renderAll(); document.getElementById('addMemberModal').classList.remove('active');
+    }
+};
+
+/* --- UTILS --- */
+window.handleSearch = () => renderTasks(document.getElementById('searchInput').value);
+window.exportData = () => {
+    const b = new Blob([JSON.stringify({members, tasks})], {type:'application/json'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'taskwise_backup.json'; a.click();
+};
+window.importData = (el) => {
+    const fr = new FileReader();
+    fr.onload = (e) => {
+        const d = JSON.parse(e.target.result);
+        if(d.members && d.tasks) { localStorage.setItem('tw_members', JSON.stringify(d.members)); localStorage.setItem('tw_tasks', JSON.stringify(d.tasks)); location.reload(); }
+    };
+    if(el.files[0]) fr.readAsText(el.files[0]);
+};
+window.clearData = () => { if(confirm("Reset Everything?")) { localStorage.clear(); location.reload(); } };
+function showToast(msg, type='success') {
+    const t = document.createElement('div'); t.className = `toast ${type}`; t.textContent = msg;
+    document.getElementById('toast-container').appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+}
+
+/* --- CONFETTI --- */
+function fireConfetti() {
+    const c = document.getElementById('confetti-canvas'); const ctx = c.getContext('2d');
+    c.width = window.innerWidth; c.height = window.innerHeight;
+    let p = Array(50).fill().map(() => ({x:Math.random()*c.width, y:-10, r:Math.random()*6+4, c:['#f00','#0f0','#00f','#ff0'][Math.floor(Math.random()*4)]}));
+    function loop() {
+        ctx.clearRect(0,0,c.width,c.height);
+        p.forEach(k => { k.y+=k.r/2; ctx.fillStyle=k.c; ctx.beginPath(); ctx.arc(k.x,k.y,k.r,0,6.3); ctx.fill(); });
+        p = p.filter(k=>k.y<c.height);
+        if(p.length) requestAnimationFrame(loop); else ctx.clearRect(0,0,c.width,c.height);
+    }
+    loop();
+}
 </script>
 </body>
 </html>
